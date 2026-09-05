@@ -5,43 +5,470 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>エラー判定マトリクス</title>
 <style>
-*{box-sizing:border-box}body{margin:0;color:#242424;background:#f5f5f5;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic UI",Meiryo,sans-serif}button,input{font:inherit}button{cursor:pointer}.top{position:sticky;top:0;z-index:5;border-bottom:1px solid #ddd;background:#fffffff2}.head,.wrap{max-width:1400px;margin:auto;padding:14px 18px}.head,.bar,.row,.cardhead{display:flex;align-items:center;gap:8px}.head{justify-content:space-between}.head h1{margin:0;font-size:19px}.head p{margin:1px 0 0;color:#666;font-size:12px}.row{flex-wrap:wrap}.btn{min-height:33px;padding:5px 10px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#222}.btn:hover{background:#eee}.primary{border-color:#0f6cbd;background:#0f6cbd;color:#fff}.danger{color:#b10e1e}.wrap{padding-top:16px}.bar{justify-content:space-between;padding:10px;border:1px solid #ddd;border-radius:9px;background:#fff}.tabs{display:flex;padding:2px;border:1px solid #ddd;border-radius:7px;background:#f2f2f2}.tabs button{min-height:28px;padding:3px 10px;border:0;border-radius:5px;background:transparent}.tabs .on{background:#fff;box-shadow:0 1px 3px #0002}.search{width:min(330px,42vw);height:33px;padding:5px 8px;border:1px solid #ccc;border-radius:6px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:11px 0}.stat{padding:10px 13px;border:1px solid #e1e1e1;border-radius:8px;background:#fff}.stat span{display:block;color:#666;font-size:11px}.stat b{font-size:22px}.list{display:grid;gap:10px}.card{overflow:hidden;border:1px solid #ddd;border-radius:9px;background:#fff}.cardhead{justify-content:space-between;padding:10px 12px;border-bottom:1px solid #eee;background:#fafafa}.name,.txt{height:30px;padding:4px 7px;border:1px solid transparent;border-radius:5px;background:transparent}.name{width:min(430px,65vw);font-weight:700}.name:hover,.name:focus,.txt:hover,.txt:focus{border-color:#ccc;background:#fff;outline:0}.meta{color:#666;font-size:11px}.scroll{overflow:auto}table{border-collapse:collapse}.edit{width:100%;min-width:780px;table-layout:fixed}.edit th,.edit td{padding:8px;border-bottom:1px solid #eee;text-align:left}.edit th{color:#666;font-size:11px}.edit th:first-child{width:27%}.edit th:nth-child(2),.edit th:nth-child(3){width:105px}.edit th:nth-child(4){width:120px}.edit th:last-child{width:45px}.edit tr.ex{background:#fff8e1}.txt{width:100%}.check{display:flex;align-items:center;gap:5px}.check input{width:17px;height:17px;accent-color:#0f6cbd}.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}.ok{color:#107c10;background:#eff9ef}.warn{color:#805b00;background:#fff4c2}.ng{color:#b10e1e;background:#fff0f1}.foot{padding:8px 11px;background:#fafafa}.empty{padding:38px 18px;border:1px dashed #ccc;border-radius:9px;background:#fff;text-align:center;color:#666}.matrixbox{max-height:calc(100vh - 270px);overflow:auto;border:1px solid #ddd;border-radius:9px;background:#fff}.matrix{width:max-content;min-width:100%}.matrix th,.matrix td{min-width:145px;padding:8px;border-right:1px solid #eee;border-bottom:1px solid #eee;vertical-align:top;text-align:left}.matrix thead th{position:sticky;top:0;z-index:2;background:#fafafa}.matrix .first{position:sticky;left:0;z-index:1;min-width:190px;background:#fafafa}.matrix thead .first{z-index:3}.cell{padding:6px;border:1px solid #eee;border-radius:6px;background:#fafafa}.cell.ex{border-color:#e4bf5f;background:#fff8e1}.cell+.cell{margin-top:5px}.flags{margin-top:4px;color:#666;font-size:10px}.flags div{display:flex;justify-content:space-between}.off{color:#b10e1e}.toast{position:fixed;right:14px;bottom:14px;padding:8px 11px;border-radius:6px;background:#323130;color:#fff;opacity:0;pointer-events:none}.toast.on{opacity:1}[hidden]{display:none!important}
-@media(max-width:760px){.head{align-items:flex-start}.head p{display:none}.bar{align-items:stretch;flex-direction:column}.bar>.row:last-child{justify-content:space-between}.search{flex:1;width:100%}.stats{grid-template-columns:repeat(2,1fr)}.cardhead{align-items:flex-start;flex-direction:column}.matrixbox{max-height:calc(100vh - 330px)}}
+:root{
+  color-scheme:light;
+  --bg:#f4f6f8;
+  --surface:#ffffff;
+  --surface-subtle:#f8f9fb;
+  --surface-hover:#f1f4f7;
+  --text:#17202a;
+  --muted:#68717d;
+  --border:#dfe3e8;
+  --border-strong:#c8ced6;
+  --primary:#0f6cbd;
+  --primary-hover:#0b5da7;
+  --primary-soft:#e8f3fc;
+  --success:#107c10;
+  --success-soft:#edf8ed;
+  --warning:#8a5d00;
+  --warning-soft:#fff4ce;
+  --danger:#b42332;
+  --danger-soft:#fff0f1;
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 6px 18px rgba(16,24,40,.05);
+  --radius:10px;
+  --header-height:64px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic UI",Meiryo,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;overflow:hidden;color:var(--text);background:var(--bg);font-size:14px;line-height:1.45}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.42}
+[hidden]{display:none!important}
+.app-header{height:var(--header-height);display:grid;grid-template-columns:minmax(250px,1fr) auto minmax(250px,1fr);align-items:center;gap:18px;padding:0 20px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.96);backdrop-filter:blur(12px);position:relative;z-index:20}
+.brand{display:flex;align-items:center;min-width:0;gap:11px}
+.brand-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:#fff;background:var(--primary);font-size:18px;font-weight:800;box-shadow:0 4px 12px rgba(15,108,189,.2)}
+.brand-copy{min-width:0}
+.brand h1{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:17px;line-height:1.2}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:11px;white-space:nowrap}
+.view-tabs{display:flex;gap:4px;padding:4px;border:1px solid var(--border);border-radius:9px;background:var(--surface-subtle)}
+.view-tab{min-width:92px;height:34px;padding:0 14px;border:0;border-radius:6px;color:var(--muted);background:transparent;font-weight:650}
+.view-tab:hover{color:var(--text);background:var(--surface-hover)}
+.view-tab.active{color:var(--primary);background:var(--surface);box-shadow:0 1px 3px rgba(16,24,40,.12)}
+.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px}
+.save-state{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px;white-space:nowrap}
+.save-dot{width:7px;height:7px;border-radius:50%;background:var(--success)}
+.btn{min-height:34px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:5px 11px;border:1px solid var(--border-strong);border-radius:7px;color:var(--text);background:var(--surface);font-weight:600;text-decoration:none}
+.btn:hover{background:var(--surface-hover)}
+.btn.primary{border-color:var(--primary);color:#fff;background:var(--primary)}
+.btn.primary:hover{background:var(--primary-hover)}
+.btn.danger{border-color:transparent;color:var(--danger);background:transparent}
+.btn.danger:hover{background:var(--danger-soft)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.small{min-height:30px;padding:3px 9px;font-size:12px}
+.icon-btn{width:32px;height:32px;display:inline-grid;place-items:center;padding:0;border:1px solid transparent;border-radius:7px;color:var(--muted);background:transparent;font-size:15px}
+.icon-btn:hover{border-color:var(--border);color:var(--text);background:var(--surface-hover)}
+.icon-btn.danger:hover{border-color:#f5c7cc;color:var(--danger);background:var(--danger-soft)}
+.data-menu{position:relative}
+.data-menu>summary{list-style:none}.data-menu>summary::-webkit-details-marker{display:none}
+.menu-panel{position:absolute;right:0;top:calc(100% + 7px);width:190px;padding:6px;border:1px solid var(--border);border-radius:9px;background:var(--surface);box-shadow:0 12px 32px rgba(16,24,40,.16)}
+.menu-panel button{width:100%;min-height:34px;padding:6px 9px;border:0;border-radius:6px;color:var(--text);background:transparent;text-align:left}
+.menu-panel button:hover{background:var(--surface-hover)}
+.menu-panel .menu-danger{color:var(--danger)}
+.menu-separator{height:1px;margin:5px 3px;background:var(--border)}
+.app-shell{height:calc(100vh - var(--header-height));display:grid;grid-template-columns:276px minmax(0,1fr)}
+.sidebar{min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--surface)}
+.sidebar-head{padding:17px 15px 11px}
+.sidebar-title-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sidebar-title-row h2{margin:0;font-size:15px}
+.eyebrow{color:var(--muted);font-size:10px;font-weight:750;letter-spacing:.1em;text-transform:uppercase}
+.search-wrap{position:relative;margin-top:11px}
+.search-wrap::before{content:"⌕";position:absolute;left:10px;top:50%;transform:translateY(-52%);color:var(--muted);font-size:17px;pointer-events:none}
+.search-input{width:100%;height:35px;padding:6px 10px 6px 32px;border:1px solid var(--border);border-radius:7px;color:var(--text);background:var(--surface-subtle)}
+.search-input:focus{border-color:var(--primary);outline:2px solid rgba(15,108,189,.12);background:var(--surface)}
+.screen-list{min-height:0;flex:1;overflow:auto;padding:2px 9px 12px}
+.screen-item{width:100%;display:grid;grid-template-columns:9px minmax(0,1fr) auto;align-items:center;gap:9px;margin:2px 0;padding:10px 9px;border:1px solid transparent;border-radius:8px;color:var(--text);background:transparent;text-align:left}
+.screen-item:hover{background:var(--surface-hover)}
+.screen-item.active{border-color:#b9d8f1;background:var(--primary-soft)}
+.screen-indicator{width:7px;height:7px;border-radius:50%;background:#9aa2ad}
+.screen-indicator.has-exception{background:#e5a000}
+.screen-item.active .screen-indicator{background:var(--primary)}
+.screen-copy{min-width:0}
+.screen-copy strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.screen-copy small{display:block;margin-top:2px;color:var(--muted);font-size:10px}
+.exception-count{min-width:24px;padding:2px 6px;border-radius:20px;color:var(--warning);background:var(--warning-soft);font-size:10px;font-weight:750;text-align:center}
+.sidebar-empty{padding:28px 12px;color:var(--muted);text-align:center;font-size:12px}
+.sidebar-footer{padding:11px 14px;border-top:1px solid var(--border);color:var(--muted);background:var(--surface-subtle);font-size:11px}
+.sidebar-summary{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sidebar-summary b{color:var(--text);font-size:12px}
+.mobile-picker{display:none}
+.workspace{min-width:0;overflow:auto;padding:24px 28px 48px}
+.workspace-inner{width:min(1180px,100%);margin:0 auto}
+.workspace-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
+.workspace-title{min-width:0;flex:1}
+.screen-title-input{width:min(640px,100%);height:44px;margin-top:3px;padding:2px 0;border:0;border-bottom:2px solid transparent;color:var(--text);background:transparent;font-size:28px;font-weight:720;letter-spacing:-.02em}
+.screen-title-input:hover{border-bottom-color:var(--border-strong)}
+.screen-title-input:focus{border-bottom-color:var(--primary);outline:0}
+.workspace-meta{display:flex;align-items:center;gap:7px;margin-top:6px;color:var(--muted);font-size:12px}
+.meta-separator{width:3px;height:3px;border-radius:50%;background:#aab0b7}
+.workspace-actions{display:flex;align-items:center;gap:4px;padding-top:13px}
+.standard-note{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;padding:11px 13px;border:1px solid #c9e0f2;border-radius:9px;color:#244b67;background:#f1f8fd;font-size:12px}
+.standard-note-icon{width:20px;height:20px;display:grid;place-items:center;flex:0 0 auto;border-radius:50%;color:var(--primary);background:#d9edfb;font-weight:800}
+.panel{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+.panel-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 17px;border-bottom:1px solid var(--border)}
+.panel-title h2{margin:0;font-size:15px}
+.panel-title p{margin:3px 0 0;color:var(--muted);font-size:11px}
+.toolbar-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.toolbar-search{width:230px;margin-top:0}
+.filter-toggle{min-height:34px;display:flex;align-items:center;gap:7px;padding:5px 9px;border:1px solid var(--border);border-radius:7px;color:var(--muted);background:var(--surface);font-size:12px;white-space:nowrap}
+.filter-toggle:hover{background:var(--surface-hover)}
+.filter-toggle input{width:16px;height:16px;margin:0;accent-color:var(--primary)}
+.timing-columns{display:grid;grid-template-columns:42px minmax(190px,1.6fr) 158px 158px 126px 106px;gap:10px;padding:9px 15px;border-bottom:1px solid var(--border);color:var(--muted);background:var(--surface-subtle);font-size:10px;font-weight:750;letter-spacing:.03em}
+.timing-list{padding:7px}
+.timing-row{display:grid;grid-template-columns:42px minmax(190px,1.6fr) 158px 158px 126px 106px;align-items:center;gap:10px;padding:10px 8px;border:1px solid transparent;border-radius:8px}
+.timing-row+.timing-row{margin-top:3px}
+.timing-row:hover{border-color:var(--border);background:var(--surface-subtle)}
+.timing-row.exception{border-color:#f1d38a;background:#fffaf0}
+.row-number{width:28px;height:28px;display:grid;place-items:center;border-radius:7px;color:var(--muted);background:#eef1f4;font-size:10px;font-weight:750}
+.field-label{display:none;color:var(--muted);font-size:10px;font-weight:700}
+.text-input{width:100%;height:34px;padding:5px 8px;border:1px solid transparent;border-radius:6px;color:var(--text);background:transparent}
+.text-input:hover{border-color:var(--border);background:var(--surface)}
+.text-input:focus{border-color:var(--primary);outline:2px solid rgba(15,108,189,.1);background:var(--surface)}
+.timing-name-input{font-weight:650}
+.segmented{display:grid;grid-template-columns:1fr 1fr;padding:2px;border:1px solid var(--border);border-radius:7px;background:var(--surface-subtle)}
+.segmented button{height:28px;padding:2px 7px;border:0;border-radius:5px;color:var(--muted);background:transparent;font-size:11px;font-weight:650}
+.segmented button:hover{color:var(--text)}
+.segmented button.active.yes{color:var(--success);background:var(--surface);box-shadow:0 1px 3px rgba(16,24,40,.12)}
+.segmented button.active.no{color:var(--danger);background:var(--danger-soft);box-shadow:0 1px 3px rgba(16,24,40,.08)}
+.status-badge{display:inline-flex;align-items:center;justify-content:center;min-height:25px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:750;white-space:nowrap}
+.status-badge.standard{color:var(--success);background:var(--success-soft)}
+.status-badge.partial{color:var(--warning);background:var(--warning-soft)}
+.status-badge.none{color:var(--danger);background:var(--danger-soft)}
+.row-actions{display:flex;align-items:center;justify-content:flex-end;gap:1px}
+.note-field{grid-column:2/-1;display:grid;grid-template-columns:38px minmax(0,1fr);align-items:center;gap:8px;margin-top:-2px}
+.note-label{color:var(--muted);font-size:10px}
+.note-input{height:30px;color:var(--muted);font-size:11px}
+.add-timing{width:calc(100% - 14px);min-height:44px;margin:2px 7px 9px;border:1px dashed var(--border-strong);border-radius:8px;color:var(--primary);background:var(--surface)}
+.add-timing:hover{border-color:var(--primary);background:var(--primary-soft)}
+.panel-empty{padding:58px 18px;text-align:center;color:var(--muted)}
+.panel-empty strong{display:block;margin-bottom:5px;color:var(--text);font-size:14px}
+.no-screen{width:min(560px,100%);margin:14vh auto 0;padding:50px 28px;border:1px dashed var(--border-strong);border-radius:12px;background:var(--surface);text-align:center}
+.no-screen h2{margin:0 0 7px;font-size:18px}.no-screen p{margin:0 0 18px;color:var(--muted)}
+.matrix-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+.matrix-heading h2{margin:2px 0 3px;font-size:24px}.matrix-heading p{margin:0;color:var(--muted);font-size:12px}
+.matrix-summary{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.summary-chip{padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--muted);font-size:11px}.summary-chip b{margin-right:3px;color:var(--text);font-size:14px}
+.matrix-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.legend{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px}.legend-dot{width:8px;height:8px;border-radius:50%;background:var(--success)}.legend-dot.partial{background:#e5a000}.legend-dot.none{background:var(--danger)}
+.matrix-container{max-height:calc(100vh - 228px);overflow:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+.matrix-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0}
+.matrix-table th,.matrix-table td{min-width:174px;padding:9px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);vertical-align:top;text-align:left}
+.matrix-table thead th{position:sticky;top:0;z-index:3;height:43px;color:var(--muted);background:var(--surface-subtle);font-size:11px}
+.matrix-table .matrix-first{position:sticky;left:0;z-index:2;min-width:210px;max-width:250px;background:var(--surface-subtle)}
+.matrix-table thead .matrix-first{z-index:4}
+.matrix-screen-name{display:block;overflow:hidden;text-overflow:ellipsis;color:var(--text);font-size:12px;white-space:nowrap}.matrix-screen-meta{display:block;margin-top:2px;color:var(--muted);font-size:9px}
+.matrix-cell{padding:7px;border:1px solid var(--border);border-radius:7px;background:var(--surface-subtle)}
+.matrix-cell+.matrix-cell{margin-top:6px}.matrix-cell.exception{border-color:#edcf81;background:#fffaf0}.matrix-cell.none{border-color:#efb7bd;background:#fff5f6}
+.matrix-cell-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.matrix-behaviors{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px}
+.matrix-toggle{display:flex;align-items:center;justify-content:space-between;gap:5px;min-height:27px;padding:3px 6px;border:1px solid var(--border);border-radius:5px;color:var(--muted);background:var(--surface);font-size:9px}
+.matrix-toggle:hover{border-color:var(--primary)}.matrix-toggle b{font-size:10px}.matrix-toggle b.no{color:var(--danger)}.matrix-toggle b.yes{color:var(--success)}
+.matrix-note{display:block;margin-top:6px;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:9px;white-space:nowrap}
+.matrix-missing{display:grid;place-items:center;min-height:72px;color:#b5bbc2}
+.toast{position:fixed;right:18px;bottom:18px;z-index:50;max-width:min(420px,calc(100vw - 36px));padding:10px 13px;border-radius:8px;color:#fff;background:#27313b;box-shadow:0 10px 30px rgba(0,0,0,.2);opacity:0;transform:translateY(7px);pointer-events:none;transition:.18s ease}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:1040px){
+  .app-header{grid-template-columns:1fr auto}.view-tabs{order:3;grid-column:1/-1;position:absolute;left:50%;bottom:-45px;transform:translateX(-50%);z-index:10}.app-shell{height:calc(100vh - var(--header-height));padding-top:45px}.brand p{display:none}.workspace{padding:20px}.timing-columns{display:none}.timing-row{grid-template-columns:34px minmax(0,1fr) auto;padding:12px 10px}.row-number{grid-column:1;grid-row:1}.timing-main{grid-column:2;grid-row:1}.row-actions{grid-column:3;grid-row:1}.toggle-field{grid-column:2/4;display:grid;grid-template-columns:105px minmax(160px,250px);align-items:center;gap:10px}.display-field{grid-row:2}.notify-field{grid-row:3}.status-field{grid-column:2/4;grid-row:4}.note-field{grid-column:2/4;grid-row:5;margin-top:0}.field-label{display:block}.workspace-actions{flex-wrap:wrap;justify-content:flex-end}}
+@media(max-width:760px){
+  :root{--header-height:57px}.app-header{height:var(--header-height);padding:0 12px}.brand-mark{width:31px;height:31px}.brand h1{font-size:15px}.save-state{display:none}.data-menu .btn{min-height:32px}.view-tabs{bottom:-43px;width:calc(100vw - 24px)}.view-tab{flex:1}.app-shell{height:auto;min-height:calc(100vh - var(--header-height));display:block;padding-top:43px}.sidebar{border-right:0;border-bottom:1px solid var(--border)}.sidebar-head{padding:10px 12px}.sidebar-title-row,.screen-list,.sidebar-footer{display:none}.mobile-picker{display:flex;align-items:center;gap:8px}.mobile-picker select{min-width:0;flex:1;height:38px;padding:5px 9px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}.sidebar .search-wrap{display:none}.workspace{overflow:visible;padding:18px 12px 36px}.workspace-header,.matrix-heading,.panel-toolbar,.matrix-toolbar{align-items:stretch;flex-direction:column}.workspace-actions{justify-content:flex-start;padding-top:0}.screen-title-input{font-size:23px}.toolbar-controls{justify-content:flex-start}.toolbar-search{width:100%}.panel-toolbar{padding:13px}.timing-list{padding:5px}.timing-row{grid-template-columns:30px minmax(0,1fr) auto}.toggle-field{grid-template-columns:92px minmax(0,1fr)}.note-field{grid-template-columns:1fr}.note-label{display:none}.matrix-summary{justify-content:flex-start}.matrix-container{max-height:none}.matrix-toolbar .search-wrap{display:block;margin:0;width:100%}body{overflow:auto}}
+@media(max-width:430px){.header-actions .btn{padding:4px 8px}.brand-mark{display:none}.app-header{grid-template-columns:minmax(0,1fr) auto}.workspace-meta{flex-wrap:wrap}.toggle-field{grid-template-columns:1fr}.segmented{width:100%}.note-field,.toggle-field,.status-field{grid-column:1/4}.row-number{display:none}.timing-main{grid-column:1/3}.row-actions{grid-column:3}.matrix-table .matrix-first{min-width:150px}.matrix-table th,.matrix-table td{min-width:160px}}
 </style>
 </head>
 <body>
-<header class="top"><div class="head"><div><h1>エラー判定マトリクス</h1><p>画面 × 判定タイミングごとに、表示・通知の例外を管理</p></div><div class="row"><button class="btn" id="load">JSON読込</button><button class="btn" id="save-json">JSON出力</button><button class="btn" id="save-csv">CSV出力</button><button class="btn danger" id="reset">初期化</button></div></div></header>
-<main class="wrap"><section class="bar"><div class="row"><button class="btn primary" id="add-screen">＋ 画面を追加</button><div class="tabs"><button id="edit-tab" class="on">編集</button><button id="matrix-tab">クロス表</button></div></div><div class="row"><input class="search" id="search" type="search" placeholder="画面名・タイミングを検索"><label><input id="only" type="checkbox"> 例外のみ</label></div></section><section class="stats"><div class="stat"><span>画面数</span><b id="sc">0</b></div><div class="stat"><span>判定タイミング数</span><b id="tc">0</b></div><div class="stat"><span>例外数</span><b id="ec">0</b></div><div class="stat"><span>表示・通知なし</span><b id="nc">0</b></div></section><section id="editor" class="list"></section><section id="matrix-view" hidden><div id="matrix" class="matrixbox"></div></section></main>
-<input id="file" type="file" accept="application/json,.json" hidden><div id="toast" class="toast"></div>
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-mark">M</div>
+    <div class="brand-copy"><h1>エラー判定マトリクス</h1><p>画面と判定タイミングの例外を整理</p></div>
+  </div>
+  <nav class="view-tabs" aria-label="表示切替">
+    <button id="edit-tab" class="view-tab active" type="button">画面編集</button>
+    <button id="matrix-tab" class="view-tab" type="button">マトリクス</button>
+  </nav>
+  <div class="header-actions">
+    <span class="save-state"><span class="save-dot"></span><span id="save-label">自動保存</span></span>
+    <details class="data-menu" id="data-menu">
+      <summary class="btn">データ <span aria-hidden="true">▾</span></summary>
+      <div class="menu-panel">
+        <button id="load" type="button">JSONを読み込む</button>
+        <button id="save-json" type="button">JSONを書き出す</button>
+        <button id="save-csv" type="button">CSVを書き出す</button>
+        <div class="menu-separator"></div>
+        <button id="reset" class="menu-danger" type="button">すべて初期化</button>
+      </div>
+    </details>
+  </div>
+</header>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title-row">
+        <div><div class="eyebrow">Screens</div><h2>画面一覧</h2></div>
+        <button id="add-screen" class="btn primary small" type="button">＋ 追加</button>
+      </div>
+      <div class="search-wrap"><input id="screen-search" class="search-input" type="search" placeholder="画面を検索"></div>
+      <div class="mobile-picker">
+        <select id="mobile-screen-select" aria-label="編集する画面"></select>
+        <button id="mobile-add-screen" class="btn primary" type="button">＋</button>
+      </div>
+    </div>
+    <div id="screen-list" class="screen-list"></div>
+    <div class="sidebar-footer"><div class="sidebar-summary"><span>全体</span><b id="sidebar-summary">0画面 / 0例外</b></div></div>
+  </aside>
+  <main class="workspace">
+    <section id="edit-view" class="workspace-inner">
+      <div id="no-screen" class="no-screen" hidden>
+        <h2>画面がまだありません</h2>
+        <p>最初の画面を追加して、判定タイミングを登録してください。</p>
+        <button id="empty-add-screen" class="btn primary" type="button">＋ 画面を追加</button>
+      </div>
+      <div id="screen-editor">
+        <div class="workspace-header">
+          <div class="workspace-title">
+            <div class="eyebrow">Selected screen</div>
+            <input id="screen-name" class="screen-title-input" aria-label="画面名" placeholder="画面名">
+            <div class="workspace-meta"><span id="screen-timing-count">0 タイミング</span><span class="meta-separator"></span><span id="screen-exception-count">0 例外</span></div>
+          </div>
+          <div class="workspace-actions">
+            <button id="move-screen-up" class="icon-btn" type="button" title="画面を上へ" aria-label="画面を上へ">↑</button>
+            <button id="move-screen-down" class="icon-btn" type="button" title="画面を下へ" aria-label="画面を下へ">↓</button>
+            <button id="duplicate-screen" class="btn ghost small" type="button">複製</button>
+            <button id="delete-screen" class="btn danger small" type="button">画面を削除</button>
+          </div>
+        </div>
+        <div class="standard-note"><span class="standard-note-icon">i</span><div><strong>基本設定は「エラー表示あり・通知あり」</strong><br>異なるタイミングだけ「なし」に切り替えると、例外として強調表示されます。</div></div>
+        <div class="panel">
+          <div class="panel-toolbar">
+            <div class="panel-title"><h2>判定タイミング</h2><p>選択中の画面だけを編集しています。</p></div>
+            <div class="toolbar-controls">
+              <div class="search-wrap toolbar-search"><input id="timing-search" class="search-input" type="search" placeholder="タイミングを検索"></div>
+              <label class="filter-toggle"><input id="only-edit" type="checkbox">例外のみ</label>
+              <button id="reset-screen" class="btn small" type="button">すべて標準に戻す</button>
+            </div>
+          </div>
+          <div class="timing-columns"><span>#</span><span>判定タイミング</span><span>エラー表示</span><span>通知</span><span>状態</span><span></span></div>
+          <div id="timing-list" class="timing-list"></div>
+          <button id="add-timing" class="add-timing" type="button">＋ 判定タイミングを追加</button>
+        </div>
+      </div>
+    </section>
+    <section id="matrix-view" class="workspace-inner" hidden>
+      <div class="matrix-heading">
+        <div><div class="eyebrow">Overview</div><h2>マトリクス</h2><p>同じ判定タイミングを列としてまとめ、画面ごとの差を確認できます。</p></div>
+        <div class="matrix-summary"><span class="summary-chip"><b id="matrix-screen-count">0</b>画面</span><span class="summary-chip"><b id="matrix-timing-count">0</b>タイミング</span><span class="summary-chip"><b id="matrix-exception-count">0</b>例外</span></div>
+      </div>
+      <div class="matrix-toolbar">
+        <div class="legend"><span class="legend-item"><span class="legend-dot"></span>標準</span><span class="legend-item"><span class="legend-dot partial"></span>片方なし</span><span class="legend-item"><span class="legend-dot none"></span>両方なし</span><span>セル内のボタンから直接変更できます。</span></div>
+        <div class="toolbar-controls">
+          <div class="search-wrap toolbar-search"><input id="matrix-search" class="search-input" type="search" placeholder="画面・タイミングを検索"></div>
+          <label class="filter-toggle"><input id="only-matrix" type="checkbox">例外のみ</label>
+        </div>
+      </div>
+      <div id="matrix" class="matrix-container"></div>
+    </section>
+  </main>
+</div>
+<input id="file" type="file" accept="application/json,.json" hidden>
+<div id="toast" class="toast" role="status"></div>
 <script>
-(()=>{'use strict';
-const $=s=>document.querySelector(s),KEY='test-matrix/v1';
-const id=p=>p+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2),timing=(name='判定タイミング 1')=>({id:id('t'),name,display:true,notify:true,note:''}),screen=(name='画面 1')=>({id:id('s'),name,timings:[timing()]});
-const fresh=()=>({screens:[screen()]}),safeGet=()=>{try{return localStorage.getItem(KEY)}catch{return null}},save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch{}};
-const clean=x=>{if(!x||!Array.isArray(x.screens))throw Error('対応していないJSON形式です。');return{screens:x.screens.map((s,i)=>({id:s.id||id('s'),name:typeof s.name==='string'?s.name:`画面 ${i+1}`,timings:Array.isArray(s.timings)?s.timings.map((t,j)=>({id:t.id||id('t'),name:typeof t.name==='string'?t.name:`判定タイミング ${j+1}`,display:t.display!==false&&t.errorDisplay!==false,notify:t.notify!==false&&t.notification!==false,note:typeof t.note==='string'?t.note:''})):[]}))}};
-let data;try{data=safeGet()?clean(JSON.parse(safeGet())):fresh()}catch{data=fresh()}let view='edit',query='',only=false,timer;
-const esc=x=>String(x??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'),norm=x=>String(x??'').trim().toLowerCase(),ex=t=>!t.display||!t.notify;
-const state=t=>t.display&&t.notify?['ok','標準']:t.display?['warn','表示のみ']:t.notify?['warn','通知のみ']:['ng','表示・通知なし'];
-const badge=t=>{const s=state(t);return `<span class="badge ${s[0]}">${s[1]}</span>`},getS=sid=>data.screens.find(s=>s.id===sid),getT=(sid,tid)=>getS(sid)?.timings.find(t=>t.id===tid);
-const toast=x=>{const e=$('#toast');e.textContent=x;e.classList.add('on');clearTimeout(timer);timer=setTimeout(()=>e.classList.remove('on'),2000)};
-const rows=s=>{const q=norm(query),sm=!q||norm(s.name).includes(q);return s.timings.filter(t=>(!only||ex(t))&&(!q||sm||norm(t.name).includes(q)||norm(t.note).includes(q)))};
-const screens=()=>data.screens.filter(s=>rows(s).length||(!only&&!s.timings.length&&(!query||norm(s.name).includes(norm(query)))));
-const check=(s,t,k)=>`<label class="check"><input type="checkbox" data-a="toggle" data-s="${s.id}" data-t="${t.id}" data-k="${k}" ${t[k]?'checked':''}><span>${t[k]?'あり':'なし'}</span></label>`;
-function stats(){const a=data.screens.flatMap(s=>s.timings);$('#sc').textContent=data.screens.length;$('#tc').textContent=a.length;$('#ec').textContent=a.filter(ex).length;$('#nc').textContent=a.filter(t=>!t.display&&!t.notify).length}
-function editor(){const a=screens(),e=$('#editor');if(!a.length){e.innerHTML='<div class="empty">表示できる項目がありません。</div>';return}e.innerHTML=a.map(s=>{const r=rows(s).map(t=>`<tr class="${ex(t)?'ex':''}"><td><input class="txt" data-f="timing" data-s="${s.id}" data-t="${t.id}" value="${esc(t.name)}" placeholder="入力時 / 確定時"></td><td>${check(s,t,'display')}</td><td>${check(s,t,'notify')}</td><td>${badge(t)}</td><td><input class="txt" data-f="note" data-s="${s.id}" data-t="${t.id}" value="${esc(t.note)}" placeholder="例外理由・補足"></td><td><button class="btn danger" data-a="del-t" data-s="${s.id}" data-t="${t.id}">×</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">判定タイミングがありません。</td></tr>';return `<article class="card"><div class="cardhead"><div><input class="name" data-f="screen" data-s="${s.id}" value="${esc(s.name)}" placeholder="画面名"><span class="meta">${s.timings.length} タイミング ・ ${s.timings.filter(ex).length} 例外</span></div><button class="btn danger" data-a="del-s" data-s="${s.id}">画面削除</button></div><div class="scroll"><table class="edit"><thead><tr><th>エラー判定タイミング</th><th>エラー表示</th><th>通知</th><th>区分</th><th>メモ</th><th></th></tr></thead><tbody>${r}</tbody></table></div><div class="foot"><button class="btn" data-a="add-t" data-s="${s.id}">＋ 判定タイミングを追加</button></div></article>`}).join('')}
-function matrix(){const ss=screens(),cs=[],keys=new Set;ss.forEach(s=>rows(s).forEach(t=>{const label=t.name.trim()||'未設定',key=norm(label);if(!keys.has(key)){keys.add(key);cs.push({key,label})}}));const e=$('#matrix');if(!ss.length||!cs.length){e.innerHTML='<div class="empty">表示できるマトリクスがありません。</div>';return}e.innerHTML=`<table class="matrix"><thead><tr><th class="first">画面</th>${cs.map(c=>`<th>${esc(c.label)}</th>`).join('')}</tr></thead><tbody>${ss.map(s=>`<tr><th class="first">${esc(s.name||'未設定')}</th>${cs.map(c=>{const a=rows(s).filter(t=>norm(t.name.trim()||'未設定')===c.key);return a.length?`<td>${a.map(t=>`<div class="cell ${ex(t)?'ex':''}">${badge(t)}<div class="flags"><div><span>エラー表示</span><b class="${t.display?'':'off'}">${t.display?'あり':'なし'}</b></div><div><span>通知</span><b class="${t.notify?'':'off'}">${t.notify?'あり':'なし'}</b></div></div></div>`).join('')}</td>`:'<td>—</td>'}).join('')}</tr>`).join('')}</tbody></table>`}
-function show(){const edit=view==='edit';$('#editor').hidden=!edit;$('#matrix-view').hidden=edit;$('#edit-tab').classList.toggle('on',edit);$('#matrix-tab').classList.toggle('on',!edit)}function render(){stats();editor();matrix();show()}
-function addScreen(){let n=data.screens.length+1;const s=screen(`画面 ${n}`);data.screens.push(s);only=false;$('#only').checked=false;save();render()}
-function addTiming(sid){const s=getS(sid);if(!s)return;s.timings.push(timing(`判定タイミング ${s.timings.length+1}`));only=false;$('#only').checked=false;save();render()}
-$('#editor').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,s=b.dataset.s,t=b.dataset.t;if(a==='add-t')addTiming(s);if(a==='del-s'){const x=getS(s);if(x&&confirm(`「${x.name}」を削除しますか？`)){data.screens=data.screens.filter(v=>v.id!==s);save();render()}}if(a==='del-t'){const x=getS(s),y=getT(s,t);if(x&&y&&confirm(`「${y.name}」を削除しますか？`)){x.timings=x.timings.filter(v=>v.id!==t);save();render()}}};
-$('#editor').oninput=e=>{const x=e.target,f=x.dataset.f,s=getS(x.dataset.s),t=getT(x.dataset.s,x.dataset.t);if(f==='screen'&&s)s.name=x.value;if(f==='timing'&&t)t.name=x.value;if(f==='note'&&t)t.note=x.value;save()};
-$('#editor').onchange=e=>{const x=e.target;if(x.dataset.a==='toggle'){const t=getT(x.dataset.s,x.dataset.t);if(t){t[x.dataset.k]=x.checked;save();render()}}else if(x.dataset.f)render()};
-$('#add-screen').onclick=addScreen;$('#edit-tab').onclick=()=>{view='edit';show()};$('#matrix-tab').onclick=()=>{view='matrix';matrix();show()};$('#search').oninput=e=>{query=e.target.value;editor();matrix()};$('#only').onchange=e=>{only=e.target.checked;editor();matrix()};
-function download(name,text,type){const u=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),0)}const stamp=()=>new Date().toISOString().slice(0,10).replaceAll('-','');
-$('#save-json').onclick=()=>{download(`error-test-matrix-${stamp()}.json`,JSON.stringify({version:1,screens:data.screens},null,2),'application/json');toast('JSONを書き出しました。')};
-$('#save-csv').onclick=()=>{const a=[['画面','判定タイミング','エラー表示','通知','区分','メモ']];data.screens.forEach(s=>s.timings.forEach(t=>a.push([s.name,t.name,t.display?'あり':'なし',t.notify?'あり':'なし',state(t)[1],t.note])));const q=x=>''+String(x??'').replaceAll('"','""')+'';download(`error-test-matrix-${stamp()}.csv`,'\ufeff'+a.map(r=>r.map(q).join(',')).join('\r\n'),'text/csv');toast('CSVを書き出しました。')};
-$('#load').onclick=()=>$('#file').click();$('#file').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=clean(JSON.parse(await f.text()));if(confirm('現在の内容を読み込んだJSONで置き換えますか？')){data=d;save();render();toast('JSONを読み込みました。')}}catch(x){toast(x.message)}e.target.value=''};
-$('#reset').onclick=()=>{if(confirm('すべて初期化しますか？')){data=fresh();save();render()}};render();
+(()=>{
+'use strict';
+const $=selector=>document.querySelector(selector);
+const STORAGE_KEY='test-matrix/v1';
+const UI_KEY='test-matrix/ui/v2';
+const makeId=prefix=>`${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+const makeTiming=(name='判定タイミング 1')=>({id:makeId('t'),name,display:true,notify:true,note:''});
+const makeScreen=(name='画面 1')=>({id:makeId('s'),name,timings:[makeTiming()]});
+const freshData=()=>({screens:[makeScreen()]});
+const safeStorageGet=key=>{try{return localStorage.getItem(key)}catch{return null}};
+const safeStorageSet=(key,value)=>{try{localStorage.setItem(key,value);return true}catch{return false}};
+const normalizeImportedData=value=>{
+  if(!value||!Array.isArray(value.screens))throw new Error('対応していないJSON形式です。');
+  return{
+    screens:value.screens.map((screen,index)=>({
+      id:typeof screen.id==='string'&&screen.id?screen.id:makeId('s'),
+      name:typeof screen.name==='string'?screen.name:`画面 ${index+1}`,
+      timings:Array.isArray(screen.timings)?screen.timings.map((timing,timingIndex)=>({
+        id:typeof timing.id==='string'&&timing.id?timing.id:makeId('t'),
+        name:typeof timing.name==='string'?timing.name:`判定タイミング ${timingIndex+1}`,
+        display:timing.display!==false&&timing.errorDisplay!==false,
+        notify:timing.notify!==false&&timing.notification!==false,
+        note:typeof timing.note==='string'?timing.note:''
+      })):[]
+    }))
+  };
+};
+let data;
+try{data=safeStorageGet(STORAGE_KEY)?normalizeImportedData(JSON.parse(safeStorageGet(STORAGE_KEY))):freshData()}catch{data=freshData()}
+let ui={view:'edit',selectedId:data.screens[0]?.id||null,screenQuery:'',timingQuery:'',matrixQuery:'',onlyExceptions:false};
+try{const saved=JSON.parse(safeStorageGet(UI_KEY)||'null');if(saved&&typeof saved==='object')ui={...ui,...saved}}catch{}
+if(!data.screens.some(screen=>screen.id===ui.selectedId))ui.selectedId=data.screens[0]?.id||null;
+let toastTimer;
+const escapeHtml=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+const normalize=value=>String(value??'').trim().toLocaleLowerCase('ja-JP');
+const isException=timing=>!timing.display||!timing.notify;
+const getScreen=id=>data.screens.find(screen=>screen.id===id);
+const getTiming=(screenId,timingId)=>getScreen(screenId)?.timings.find(timing=>timing.id===timingId);
+const selectedScreen=()=>getScreen(ui.selectedId);
+const getStatus=timing=>timing.display&&timing.notify?{key:'standard',label:'標準'}:timing.display||timing.notify?{key:'partial',label:timing.display?'表示のみ':'通知のみ'}:{key:'none',label:'表示・通知なし'};
+const statusBadge=timing=>{const status=getStatus(timing);return `<span class="status-badge ${status.key}">${status.label}</span>`};
+function persist(){safeStorageSet(STORAGE_KEY,JSON.stringify(data));safeStorageSet(UI_KEY,JSON.stringify(ui));const label=$('#save-label');if(label){label.textContent='保存済み';clearTimeout(persist.labelTimer);persist.labelTimer=setTimeout(()=>label.textContent='自動保存',1100)}}
+function showToast(message){const toast=$('#toast');toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2200)}
+function nextScreenName(){let index=data.screens.length+1;const names=new Set(data.screens.map(screen=>normalize(screen.name)));while(names.has(normalize(`画面 ${index}`)))index++;return `画面 ${index}`}
+function nextTimingName(screen){let index=screen.timings.length+1;const names=new Set(screen.timings.map(timing=>normalize(timing.name)));while(names.has(normalize(`判定タイミング ${index}`)))index++;return `判定タイミング ${index}`}
+function screenMatches(screen){return !ui.screenQuery||normalize(screen.name).includes(normalize(ui.screenQuery))}
+function visibleTimings(screen){const query=normalize(ui.timingQuery);return screen.timings.filter(timing=>(!ui.onlyExceptions||isException(timing))&&(!query||normalize(timing.name).includes(query)||normalize(timing.note).includes(query)))}
+function matrixTimings(screen){const query=normalize(ui.matrixQuery);const screenMatchesQuery=query&&normalize(screen.name).includes(query);return screen.timings.filter(timing=>(!ui.onlyExceptions||isException(timing))&&(!query||screenMatchesQuery||normalize(timing.name).includes(query)||normalize(timing.note).includes(query)))}
+function visibleMatrixScreens(){const query=normalize(ui.matrixQuery);return data.screens.filter(screen=>matrixTimings(screen).length||(!ui.onlyExceptions&&query&&normalize(screen.name).includes(query)&&screen.timings.length===0))}
+function renderSidebar(){
+  const list=$('#screen-list');
+  const screens=data.screens.filter(screenMatches);
+  list.innerHTML=screens.length?screens.map(screen=>{
+    const exceptionCount=screen.timings.filter(isException).length;
+    return `<button class="screen-item ${screen.id===ui.selectedId?'active':''}" data-action="select-screen" data-screen="${screen.id}" type="button"><span class="screen-indicator ${exceptionCount?'has-exception':''}"></span><span class="screen-copy"><strong>${escapeHtml(screen.name||'未設定の画面')}</strong><small>${screen.timings.length} タイミング</small></span>${exceptionCount?`<span class="exception-count">${exceptionCount}</span>`:''}</button>`;
+  }).join(''):'<div class="sidebar-empty">一致する画面がありません。</div>';
+  const exceptions=data.screens.flatMap(screen=>screen.timings).filter(isException).length;
+  $('#sidebar-summary').textContent=`${data.screens.length}画面 / ${exceptions}例外`;
+  const select=$('#mobile-screen-select');
+  select.innerHTML=data.screens.length?data.screens.map(screen=>`<option value="${screen.id}" ${screen.id===ui.selectedId?'selected':''}>${escapeHtml(screen.name||'未設定の画面')}</option>`).join(''):'<option value="">画面がありません</option>';
+  select.disabled=!data.screens.length;
+}
+function segmented(screen,timing,key){
+  const yes=timing[key]===true;
+  return `<div class="segmented" role="group" aria-label="${key==='display'?'エラー表示':'通知'}"><button class="${yes?'active yes':''}" data-action="set-flag" data-screen="${screen.id}" data-timing="${timing.id}" data-key="${key}" data-value="true" type="button">あり</button><button class="${!yes?'active no':''}" data-action="set-flag" data-screen="${screen.id}" data-timing="${timing.id}" data-key="${key}" data-value="false" type="button">なし</button></div>`;
+}
+function renderTimingList(){
+  const screen=selectedScreen();
+  const list=$('#timing-list');
+  if(!screen){list.innerHTML='';return}
+  const timings=visibleTimings(screen);
+  if(!timings.length){
+    const message=screen.timings.length?'検索・フィルター条件に一致する項目がありません。':'判定タイミングがまだありません。';
+    list.innerHTML=`<div class="panel-empty"><strong>${message}</strong><span>${screen.timings.length?'条件を解除して確認してください。':'下のボタンから追加できます。'}</span></div>`;
+    return;
+  }
+  list.innerHTML=timings.map(timing=>{
+    const actualIndex=screen.timings.indexOf(timing);
+    return `<article class="timing-row ${isException(timing)?'exception':''}">
+      <div class="row-number">${String(actualIndex+1).padStart(2,'0')}</div>
+      <div class="timing-main"><span class="field-label">判定タイミング</span><input class="text-input timing-name-input" data-field="timing-name" data-screen="${screen.id}" data-timing="${timing.id}" value="${escapeHtml(timing.name)}" placeholder="例: 入力時 / 保存時 / API応答時"></div>
+      <div class="toggle-field display-field"><span class="field-label">エラー表示</span>${segmented(screen,timing,'display')}</div>
+      <div class="toggle-field notify-field"><span class="field-label">通知</span>${segmented(screen,timing,'notify')}</div>
+      <div class="status-field">${statusBadge(timing)}</div>
+      <div class="row-actions"><button class="icon-btn" data-action="move-timing-up" data-screen="${screen.id}" data-timing="${timing.id}" type="button" title="上へ" ${actualIndex===0?'disabled':''}>↑</button><button class="icon-btn" data-action="move-timing-down" data-screen="${screen.id}" data-timing="${timing.id}" type="button" title="下へ" ${actualIndex===screen.timings.length-1?'disabled':''}>↓</button><button class="icon-btn danger" data-action="delete-timing" data-screen="${screen.id}" data-timing="${timing.id}" type="button" title="削除">×</button></div>
+      <div class="note-field"><span class="note-label">メモ</span><input class="text-input note-input" data-field="timing-note" data-screen="${screen.id}" data-timing="${timing.id}" value="${escapeHtml(timing.note)}" placeholder="例外理由や確認事項を入力"></div>
+    </article>`;
+  }).join('');
+}
+function renderEditor(){
+  const screen=selectedScreen();
+  $('#no-screen').hidden=Boolean(screen);
+  $('#screen-editor').hidden=!screen;
+  if(!screen)return;
+  $('#screen-name').value=screen.name;
+  const exceptionCount=screen.timings.filter(isException).length;
+  $('#screen-timing-count').textContent=`${screen.timings.length} タイミング`;
+  $('#screen-exception-count').textContent=`${exceptionCount} 例外`;
+  const index=data.screens.indexOf(screen);
+  $('#move-screen-up').disabled=index<=0;
+  $('#move-screen-down').disabled=index<0||index>=data.screens.length-1;
+  $('#only-edit').checked=ui.onlyExceptions;
+  $('#timing-search').value=ui.timingQuery;
+  renderTimingList();
+}
+function renderMatrix(){
+  const screens=visibleMatrixScreens();
+  const columns=[];
+  const keys=new Set();
+  screens.forEach(screen=>matrixTimings(screen).forEach(timing=>{
+    const label=timing.name.trim()||'未設定';
+    const key=normalize(label);
+    if(!keys.has(key)){keys.add(key);columns.push({key,label})}
+  }));
+  const allTimings=data.screens.flatMap(screen=>screen.timings);
+  $('#matrix-screen-count').textContent=data.screens.length;
+  $('#matrix-timing-count').textContent=allTimings.length;
+  $('#matrix-exception-count').textContent=allTimings.filter(isException).length;
+  $('#only-matrix').checked=ui.onlyExceptions;
+  $('#matrix-search').value=ui.matrixQuery;
+  const container=$('#matrix');
+  if(!screens.length||!columns.length){container.innerHTML='<div class="panel-empty"><strong>表示できるマトリクスがありません。</strong><span>検索・フィルター条件を見直すか、判定タイミングを追加してください。</span></div>';return}
+  container.innerHTML=`<table class="matrix-table"><thead><tr><th class="matrix-first">画面</th>${columns.map(column=>`<th>${escapeHtml(column.label)}</th>`).join('')}</tr></thead><tbody>${screens.map(screen=>{
+    const timings=matrixTimings(screen);
+    return `<tr><th class="matrix-first"><span class="matrix-screen-name">${escapeHtml(screen.name||'未設定の画面')}</span><span class="matrix-screen-meta">${screen.timings.length} タイミング / ${screen.timings.filter(isException).length} 例外</span></th>${columns.map(column=>{
+      const matches=timings.filter(timing=>normalize(timing.name.trim()||'未設定')===column.key);
+      if(!matches.length)return '<td><span class="matrix-missing">—</span></td>';
+      return `<td>${matches.map(timing=>{
+        const status=getStatus(timing);
+        return `<div class="matrix-cell ${isException(timing)?'exception':''} ${status.key==='none'?'none':''}"><div class="matrix-cell-top">${statusBadge(timing)}</div><div class="matrix-behaviors"><button class="matrix-toggle" data-action="matrix-toggle" data-screen="${screen.id}" data-timing="${timing.id}" data-key="display" type="button"><span>表示</span><b class="${timing.display?'yes':'no'}">${timing.display?'あり':'なし'}</b></button><button class="matrix-toggle" data-action="matrix-toggle" data-screen="${screen.id}" data-timing="${timing.id}" data-key="notify" type="button"><span>通知</span><b class="${timing.notify?'yes':'no'}">${timing.notify?'あり':'なし'}</b></button></div>${timing.note?`<span class="matrix-note" title="${escapeHtml(timing.note)}">${escapeHtml(timing.note)}</span>`:''}</div>`;
+      }).join('')}</td>`;
+    }).join('')}</tr>`;
+  }).join('')}</tbody></table>`;
+}
+function renderView(){
+  const editing=ui.view==='edit';
+  $('#edit-view').hidden=!editing;
+  $('#matrix-view').hidden=editing;
+  $('#edit-tab').classList.toggle('active',editing);
+  $('#matrix-tab').classList.toggle('active',!editing);
+}
+function renderAll(){renderSidebar();renderEditor();renderMatrix();renderView()}
+function selectScreen(screenId,switchToEdit=true){if(!getScreen(screenId))return;ui.selectedId=screenId;if(switchToEdit)ui.view='edit';persist();renderAll()}
+function addScreen(){const screen=makeScreen(nextScreenName());data.screens.push(screen);ui.selectedId=screen.id;ui.view='edit';ui.screenQuery='';ui.timingQuery='';$('#screen-search').value='';persist();renderAll();requestAnimationFrame(()=>$('#screen-name').select())}
+function addTiming(){const screen=selectedScreen();if(!screen)return;const timing=makeTiming(nextTimingName(screen));screen.timings.push(timing);ui.onlyExceptions=false;ui.timingQuery='';persist();renderAll();requestAnimationFrame(()=>document.querySelector(`[data-field="timing-name"][data-timing="${CSS.escape(timing.id)}"]`)?.select())}
+function moveItem(array,index,direction){const target=index+direction;if(index<0||target<0||target>=array.length)return;[array[index],array[target]]=[array[target],array[index]]}
+function closeDataMenu(){const menu=$('#data-menu');if(menu)menu.open=false}
+$('#screen-list').addEventListener('click',event=>{const button=event.target.closest('[data-action="select-screen"]');if(button)selectScreen(button.dataset.screen)});
+$('#mobile-screen-select').addEventListener('change',event=>selectScreen(event.target.value));
+$('#screen-search').addEventListener('input',event=>{ui.screenQuery=event.target.value;safeStorageSet(UI_KEY,JSON.stringify(ui));renderSidebar()});
+$('#add-screen').addEventListener('click',addScreen);$('#mobile-add-screen').addEventListener('click',addScreen);$('#empty-add-screen').addEventListener('click',addScreen);
+$('#screen-name').addEventListener('input',event=>{const screen=selectedScreen();if(!screen)return;screen.name=event.target.value;persist();renderSidebar();if(ui.view==='matrix')renderMatrix()});
+$('#move-screen-up').addEventListener('click',()=>{const screen=selectedScreen();if(!screen)return;moveItem(data.screens,data.screens.indexOf(screen),-1);persist();renderAll()});
+$('#move-screen-down').addEventListener('click',()=>{const screen=selectedScreen();if(!screen)return;moveItem(data.screens,data.screens.indexOf(screen),1);persist();renderAll()});
+$('#duplicate-screen').addEventListener('click',()=>{const source=selectedScreen();if(!source)return;const copy={id:makeId('s'),name:`${source.name||'画面'} のコピー`,timings:source.timings.map(timing=>({...timing,id:makeId('t')}))};data.screens.splice(data.screens.indexOf(source)+1,0,copy);ui.selectedId=copy.id;persist();renderAll();showToast('画面を複製しました。')});
+$('#delete-screen').addEventListener('click',()=>{const screen=selectedScreen();if(!screen||!confirm(`「${screen.name||'未設定の画面'}」を削除しますか？`))return;const index=data.screens.indexOf(screen);data.screens.splice(index,1);ui.selectedId=data.screens[Math.min(index,data.screens.length-1)]?.id||null;persist();renderAll()});
+$('#add-timing').addEventListener('click',addTiming);
+$('#reset-screen').addEventListener('click',()=>{const screen=selectedScreen();if(!screen||!screen.timings.some(isException))return showToast('すでにすべて標準設定です。');if(!confirm('この画面の表示・通知をすべて「あり」に戻しますか？'))return;screen.timings.forEach(timing=>{timing.display=true;timing.notify=true});ui.onlyExceptions=false;persist();renderAll();showToast('すべて標準設定に戻しました。')});
+$('#timing-search').addEventListener('input',event=>{ui.timingQuery=event.target.value;safeStorageSet(UI_KEY,JSON.stringify(ui));renderTimingList()});
+function setOnlyExceptions(value){ui.onlyExceptions=value;persist();renderEditor();renderMatrix()}
+$('#only-edit').addEventListener('change',event=>setOnlyExceptions(event.target.checked));
+$('#only-matrix').addEventListener('change',event=>setOnlyExceptions(event.target.checked));
+$('#timing-list').addEventListener('input',event=>{
+  const input=event.target;const timing=getTiming(input.dataset.screen,input.dataset.timing);if(!timing)return;
+  if(input.dataset.field==='timing-name')timing.name=input.value;
+  if(input.dataset.field==='timing-note')timing.note=input.value;
+  persist();
+});
+$('#timing-list').addEventListener('change',event=>{if(event.target.dataset.field){renderSidebar();renderMatrix()}});
+$('#timing-list').addEventListener('click',event=>{
+  const button=event.target.closest('[data-action]');if(!button)return;
+  const action=button.dataset.action,screen=getScreen(button.dataset.screen),timing=getTiming(button.dataset.screen,button.dataset.timing);if(!screen||!timing)return;
+  if(action==='set-flag'){timing[button.dataset.key]=button.dataset.value==='true';persist();renderAll();return}
+  const index=screen.timings.indexOf(timing);
+  if(action==='move-timing-up')moveItem(screen.timings,index,-1);
+  if(action==='move-timing-down')moveItem(screen.timings,index,1);
+  if(action==='delete-timing'&&confirm(`「${timing.name||'未設定のタイミング'}」を削除しますか？`))screen.timings.splice(index,1);
+  persist();renderAll();
+});
+$('#matrix').addEventListener('click',event=>{const button=event.target.closest('[data-action="matrix-toggle"]');if(!button)return;const timing=getTiming(button.dataset.screen,button.dataset.timing);if(!timing)return;timing[button.dataset.key]=!timing[button.dataset.key];persist();renderSidebar();renderEditor();renderMatrix()});
+$('#matrix-search').addEventListener('input',event=>{ui.matrixQuery=event.target.value;safeStorageSet(UI_KEY,JSON.stringify(ui));renderMatrix()});
+$('#edit-tab').addEventListener('click',()=>{ui.view='edit';persist();renderView()});
+$('#matrix-tab').addEventListener('click',()=>{ui.view='matrix';persist();renderMatrix();renderView()});
+function download(name,text,type){const url=URL.createObjectURL(new Blob([text],{type}));const anchor=document.createElement('a');anchor.href=url;anchor.download=name;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),0)}
+const dateStamp=()=>new Date().toISOString().slice(0,10).replaceAll('-','');
+$('#save-json').addEventListener('click',()=>{download(`error-test-matrix-${dateStamp()}.json`,JSON.stringify({version:1,screens:data.screens},null,2),'application/json;charset=utf-8');closeDataMenu();showToast('JSONを書き出しました。')});
+$('#save-csv').addEventListener('click',()=>{
+  const rows=[['画面','判定タイミング','エラー表示','通知','区分','メモ']];
+  data.screens.forEach(screen=>screen.timings.length?screen.timings.forEach(timing=>rows.push([screen.name,timing.name,timing.display?'あり':'なし',timing.notify?'あり':'なし',getStatus(timing).label,timing.note])):rows.push([screen.name,'','','','未登録','']));
+  const csvCell=value=>`"${String(value??'').replaceAll('"','""')}"`;
+  download(`error-test-matrix-${dateStamp()}.csv`,'\ufeff'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n'),'text/csv;charset=utf-8');closeDataMenu();showToast('CSVを書き出しました。');
+});
+$('#load').addEventListener('click',()=>{$('#file').click();closeDataMenu()});
+$('#file').addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{const imported=normalizeImportedData(JSON.parse(await file.text()));if(confirm('現在の内容を読み込んだJSONで置き換えますか？')){data=imported;ui.selectedId=data.screens[0]?.id||null;ui.screenQuery='';ui.timingQuery='';ui.matrixQuery='';ui.onlyExceptions=false;persist();renderAll();showToast('JSONを読み込みました。')}}catch(error){showToast(error.message||'JSONを読み込めませんでした。')}event.target.value=''});
+$('#reset').addEventListener('click',()=>{closeDataMenu();if(!confirm('登録内容をすべて初期化しますか？'))return;data=freshData();ui={view:'edit',selectedId:data.screens[0].id,screenQuery:'',timingQuery:'',matrixQuery:'',onlyExceptions:false};persist();renderAll();showToast('初期状態に戻しました。')});
+document.addEventListener('click',event=>{const menu=$('#data-menu');if(menu.open&&!menu.contains(event.target))menu.open=false});
+renderAll();
 })();
 </script>
 </body>
